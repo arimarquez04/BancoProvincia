@@ -1,0 +1,46 @@
+create database BancoProvincia;
+use BancoProvincia;
+create table cliente(
+dni_cliente int,
+nombre_cliente varchar(50),
+telefono_cliente int,
+numero_cliente int primary key
+);
+create table cuenta(
+saldo_cuenta int,
+esCorriente tinyint,
+numero_cliente int,
+numero_Cuenta int primary key
+);
+create table historial(
+id_historial int primary key auto_increment,
+esExtraccion tinyint,
+monto_historial int,
+numero_Cuenta int 
+);
+
+alter table cuenta
+add constraint fk_cuenta_cliente
+foreign key (numero_Cliente)
+references cliente(numero_cliente);
+
+alter table historial 
+add constraint fk_historial_cliente
+foreign key (numero_cuenta)
+references cuenta(numero_cuenta);
+
+alter table cliente 
+add column contraseña_cliente int;
+ alter table cuenta 
+ add column contraseña_cuenta int;
+ 
+ 	
+SET GLOBAL event_scheduler = ON;
+
+CREATE EVENT e_agregarInteresesALosSaldosAlDescubierto
+ON SCHEDULE EVERY 1 DAY STARTS "2013-03-07 00:00:01"
+DO UPDATE cuenta SET saldo = saldo + (saldo*1/100) where ((saldo<0) and (esCorriente=true));
+
+CREATE EVENT e_agregarInteresesPositivosALosSaldoPositivosEnCuentasDeAhorro
+ON SCHEDULE EVERY 1 DAY STARTS "2013-03-11 00:00:01"
+DO UPDATE cuenta SET saldo = saldo + (saldo*1/100) where ((saldo>0) and (esCorriente=0));
